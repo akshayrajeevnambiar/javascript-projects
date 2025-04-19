@@ -20,8 +20,6 @@ const holdBtn = document.querySelector(".btn--hold");
 const resetBtn = document.querySelector(".btn--new");
 const currScore = document.querySelectorAll(".current-score");
 const player = document.querySelectorAll(".player");
-const player0 = document.querySelector(".player--0");
-const player1 = document.querySelector(".player--1");
 const scores = document.querySelectorAll(".score");
 
 const highscore = [0, 0];
@@ -29,7 +27,10 @@ const highscore = [0, 0];
 let activePlayer = 0;
 
 const switchPlayer = () => {
+  player[activePlayer].classList.toggle("player--active");
+  currScore[activePlayer].textContent = 0;
   activePlayer = activePlayer === 0 ? 1 : 0;
+  player[activePlayer].classList.toggle("player--active");
 };
 
 let diceValue;
@@ -38,11 +39,7 @@ rollDiceBtn.addEventListener("click", () => {
   diceValue = Math.ceil(Math.random() * 6);
   diceImage.src = `images/dice-${diceValue}.png`;
   if (diceValue === 1) {
-    player[activePlayer].classList.toggle("player--active");
     switchPlayer();
-    player[activePlayer].classList.toggle("player--active");
-    currScore[activePlayer].textContent = 0;
-    currScore[Number(!activePlayer)].textContent = 0;
   } else {
     currScore[activePlayer].textContent =
       Number(currScore[activePlayer].textContent) + diceValue;
@@ -56,16 +53,12 @@ holdBtn.addEventListener("click", () => {
       : highscore[activePlayer];
 
   scores[activePlayer].textContent = highscore[activePlayer];
-  currScore[activePlayer].textContent = 0;
-  player[activePlayer].classList.toggle("player--active");
-  switchPlayer();
-  player[activePlayer].classList.toggle("player--active");
-
   if (highscore[activePlayer] >= 100) {
     player[activePlayer].classList.add("player--winner");
     rollDiceBtn.disabled = true;
     holdBtn.disabled = true;
   }
+  switchPlayer();
 });
 
 resetBtn.addEventListener("click", () => {
@@ -79,9 +72,7 @@ function resetGame() {
   scores.forEach((score) => {
     score.textContent = 0;
   });
-  highscore.forEach((value) => {
-    value = 0;
-  });
+  highscore.fill(0);
   rollDiceBtn.disabled = false;
   holdBtn.disabled = false;
   player[activePlayer].classList.remove("player--winner");
