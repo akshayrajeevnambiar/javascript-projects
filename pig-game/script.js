@@ -8,19 +8,28 @@
 // STEP 5: If any of the payer reaches a score of 100, they win !!
 // STEP 6: Build the logic for a realod button which resets the game.
 
+// ------------IMPORVEMENTS TO WORK ON------------------
+// 1. A single activePlayer variable.
+// 2. A reusable switchPlayer() function.
+// 3. An array scores instead of a players object.
+// 4. A resetGame() function instead of location.reload().
+
 const diceImage = document.querySelector(".dice");
 const rollDiceBtn = document.querySelector(".btn--roll");
 const holdBtn = document.querySelector(".btn--hold");
 const resetBtn = document.querySelector(".btn--new");
 const currScore = document.querySelectorAll(".current-score");
+const player = document.querySelectorAll(".player");
 const player0 = document.querySelector(".player--0");
 const player1 = document.querySelector(".player--1");
-const player0Score = document.getElementById("score--0");
-const player1Score = document.getElementById("score--1");
+const scores = document.querySelectorAll(".score");
 
-const players = {
-  player0: 0,
-  player1: 0,
+const highscore = [0, 0];
+
+let activePlayer = 0;
+
+const switchPlayer = () => {
+  activePlayer = activePlayer === 0 ? 1 : 0;
 };
 
 let diceValue;
@@ -28,55 +37,52 @@ let diceValue;
 rollDiceBtn.addEventListener("click", () => {
   diceValue = Math.ceil(Math.random() * 6);
   diceImage.src = `images/dice-${diceValue}.png`;
-
   if (diceValue === 1) {
-    player0.classList.toggle("player--active");
-    player1.classList.toggle("player--active");
-  }
-
-  if (player0.classList.value.includes("player--active")) {
-    currScore[1].textContent = 0;
-    currScore[0].textContent = Number(currScore[0].textContent) + diceValue;
+    player[activePlayer].classList.toggle("player--active");
+    switchPlayer();
+    player[activePlayer].classList.toggle("player--active");
+    currScore[activePlayer].textContent = 0;
+    currScore[Number(!activePlayer)].textContent = 0;
   } else {
-    currScore[0].textContent = 0;
-    currScore[1].textContent = Number(currScore[1].textContent) + diceValue;
+    currScore[activePlayer].textContent =
+      Number(currScore[activePlayer].textContent) + diceValue;
   }
 });
 
 holdBtn.addEventListener("click", () => {
-  if (player0.classList.value.includes("player--active")) {
-    players.player0 =
-      players.player0 < Number(currScore[0].textContent)
-        ? Number(currScore[0].textContent)
-        : players.player0;
-    player0Score.textContent = players.player0;
-    currScore[0].textContent = 0;
-    player0.classList.toggle("player--active");
-    player1.classList.toggle("player--active");
-  } else {
-    players.player1 =
-      players.player1 < Number(currScore[1].textContent)
-        ? Number(currScore[1].textContent)
-        : players.player1;
-    player1Score.textContent = players.player1;
-    currScore[1].textContent = 0;
-    player0.classList.toggle("player--active");
-    player1.classList.toggle("player--active");
-  }
+  highscore[activePlayer] =
+    highscore[activePlayer] < Number(currScore[activePlayer].textContent)
+      ? Number(currScore[activePlayer].textContent)
+      : highscore[activePlayer];
 
-  if (players.player0 >= 10) {
-    player0.classList.add("player--winner");
-    rollDiceBtn.disabled = true;
-    holdBtn.disabled = true;
-  }
+  scores[activePlayer].textContent = highscore[activePlayer];
+  currScore[activePlayer].textContent = 0;
+  player[activePlayer].classList.toggle("player--active");
+  switchPlayer();
+  player[activePlayer].classList.toggle("player--active");
 
-  if (players.player1 >= 100) {
-    player1.classList.add("player--winner");
+  if (highscore[activePlayer] >= 100) {
+    player[activePlayer].classList.add("player--winner");
     rollDiceBtn.disabled = true;
     holdBtn.disabled = true;
   }
 });
 
 resetBtn.addEventListener("click", () => {
-  location.reload();
+  resetGame();
 });
+
+function resetGame() {
+  currScore.forEach((curr) => {
+    curr.textContent = 0;
+  });
+  scores.forEach((score) => {
+    score.textContent = 0;
+  });
+  highscore.forEach((value) => {
+    value = 0;
+  });
+  rollDiceBtn.disabled = false;
+  holdBtn.disabled = false;
+  player[activePlayer].classList.remove("player--winner");
+}
